@@ -3,51 +3,54 @@ import axios from "axios";
 
 const API_Key = process.env.REACT_APP_GIPHY_API_KEY;
 const url = `http://api.giphy.com/v1/gifs/random?api_key=${API_Key}`;
+
 class Random extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            result: []
-        };
-        //this.handleChange = this.handleChange.bind(this);
-        this.ActionLink = this.ActionLink.bind(this);
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      gif: '',
+    };
+    this.handleRandom = this.handleRandom.bind(this);
+  }
 
-    ActionLink(e) {
-        e.preventDefault();
-        axios.get(url)
-            .then((response) => {
-                const data = response.data.data;
-                this.setState({
-                    result: data
-                });
-            })
-        .catch((err) => console.log(err));
-    }
+  handleRandom() {
+    axios.get(url, { params: { key: API_Key } })
+      .then((response) => {
+        const rand = response.data.data;
+        this.setState({ 
+            gif: rand.images.looping.mp4 
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
-    render() {
-        let display;
-        display = (
-            <>
-                <div>
-                    {this.state.result.map((gif, index) => {
-                        return (<video key={index} loop autoPlay>
-                            <source src={gif.images.looping.mp4} alt="gifImage"
-                                width={250} height={250} />
-                        </video>);
-                    })}
-                </div>
-            </>
-        );
-        //  }
-        return (
-            <div>
-                <button onClick={this.ActionLink}>
-                    Random
-                </button>
-                <div className="random">{display}</div>
-            </div>
-        );
+  render() {
+    let display;
+    if (!this.state.gif) {
+      display = <></>;
+    } else {
+      display = (
+        <>
+          {<video id="random gif" loop autoPlay>
+            <source
+              src={this.state.gif}
+              alt="gifImage"
+              width={250}
+              height={250}
+            />
+          </video> }
+        </>
+      );
     }
+    return (
+      <div>
+        <button onClick={this.handleRandom}>Random</button>
+        <div className="random">{display}</div>
+      </div>
+    );
+  }
 }
+
 export default Random;
